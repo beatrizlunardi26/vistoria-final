@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VistoriaApp — Beatriz Lunardi</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#F5F3EE; --surface:#FFF; --surface2:#F0EDE8; --border:#E2DDD6;
+  --text:#1A1714; --text2:#6B6560; --text3:#9C9590;
+  --accent:#2D5A3D; --accent2:#4A8C5C; --accent-light:#EAF2EC;
+  --ok:#2D6A4F; --ok-light:#E8F5EE;
+  --danger:#B53030; --danger-light:#FDEEEE;
+  --na:#5A4A8C; --na-light:#EEEDFE;
+  --warn:#C4621A; --warn-light:#FEF0E7;
+  --radius:14px; --radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 12px rgba(0,0,0,.04);
+  --sw:260px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);background:var(--accent);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform .25s}
+.sb-logo{padding:26px 22px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
+.sb-logo-t{font-size:17px;font-weight:700;color:#fff}
+.sb-logo-s{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em;margin-top:2px}
+.sb-user{padding:14px 22px;border-bottom:1px solid rgba(255,255,255,.12);display:flex;align-items:center;gap:10px}
+.avatar{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.av-name{font-size:13px;font-weight:600;color:#fff}
+.av-role{font-size:11px;color:rgba(255,255,255,.5)}
+.sb-nav{flex:1;padding:10px 0;overflow-y:auto}
+.ni{display:flex;align-items:center;gap:10px;padding:11px 22px;font-size:14px;color:rgba(255,255,255,.7);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;transition:background .15s,color .15s}
+.ni:hover{background:rgba(255,255,255,.08);color:#fff}
+.ni.active{background:rgba(255,255,255,.16);color:#fff;font-weight:600}
+.ni .ico{font-size:17px;width:22px;text-align:center;flex-shrink:0}
+.sb-foot{padding:14px 22px;border-top:1px solid rgba(255,255,255,.12);font-size:11px;color:rgba(255,255,255,.3)}
+
+/* MAIN */
+.main{flex:1;margin-left:var(--sw);display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;flex-shrink:0}
+.topbar-title{font-size:17px;font-weight:600}
+.content{flex:1;padding:28px;max-width:1100px}
+
+/* BOTÕES */
+.btn{font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;padding:8px 16px;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:var(--surface);color:var(--text);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent2);color:var(--accent)}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-p:hover{background:var(--ok);border-color:var(--ok);color:#fff}
+.btn-danger{background:var(--danger-light);color:var(--danger);border-color:var(--danger)}
+.btn-danger:hover{background:var(--danger);color:#fff}
+
+/* PAGES */
+.page{display:none}.page.active{display:block}
+
+/* HOME */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:28px}
+.stat-card{background:var(--surface);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border:1px solid var(--border)}
+.stat-num{font-size:30px;font-weight:700;color:var(--accent)}
+.stat-label{font-size:12px;color:var(--text2);margin-top:4px}
+.sec-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}
+.obras-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.obra-card{background:var(--surface);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border:1.5px solid var(--border);transition:border-color .15s,transform .1s;position:relative}
+.obra-card:hover{border-color:var(--accent2);transform:translateY(-1px)}
+.obra-card-click{cursor:pointer}
+.obra-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.obra-icon{font-size:26px;width:46px;height:46px;display:flex;align-items:center;justify-content:center;background:var(--accent-light);border-radius:12px;flex-shrink:0}
+.obra-name{font-size:15px;font-weight:600}
+.obra-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.obra-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.badge{font-size:10px;font-weight:600;padding:3px 9px;border-radius:20px}
+.b-ok{background:var(--ok-light);color:var(--ok)}
+.b-warn{background:var(--warn-light);color:var(--warn)}
+.b-pend{background:var(--surface2);color:var(--text2)}
+.pbar-out{background:var(--border);border-radius:4px;height:5px}
+.pbar-in{height:100%;border-radius:4px;background:var(--accent2);transition:width .4s}
+.pbar-meta{font-size:11px;color:var(--text3);margin-top:4px;display:flex;justify-content:space-between}
+.obra-actions{display:flex;gap:6px;margin-top:12px}
+.add-obra-card{background:none;border:1.5px dashed var(--border);border-radius:var(--radius);padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;color:var(--text3)}
+.add-obra-card:hover{border-color:var(--accent2);color:var(--accent);background:var(--accent-light)}
+
+/* CHECKLIST */
+.cl-layout{display:grid;grid-template-columns:1fr 290px;gap:20px;align-items:start}
+@media(max-width:860px){.cl-layout{grid-template-columns:1fr}}
+.comodo-block{margin-bottom:20px}
+.comodo-header{display:flex;align-items:center;gap:10px;padding:11px 14px;margin-bottom:6px;background:var(--surface);border-radius:var(--radius-sm);border:1px solid var(--border);box-shadow:var(--shadow)}
+.comodo-icon{font-size:18px}
+.comodo-title{font-size:14px;font-weight:700;flex:1}
+.comodo-cnt{font-size:11px;color:var(--text3)}
+
+/* ITEM CLICÁVEL — ciclo de estados */
+.cl-item{background:var(--surface);border-radius:var(--radius-sm);margin-bottom:7px;border:1.5px solid var(--border);box-shadow:var(--shadow);transition:border-color .2s,background .2s;overflow:hidden}
+.cl-item.s-conf{border-color:var(--ok)}
+.cl-item.s-nc{border-color:var(--danger)}
+.cl-item.s-na{border-color:var(--na);opacity:.75}
+
+.cl-item-header{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none}
+.status-bubble{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;border:2px solid var(--border);background:var(--surface2);color:transparent;transition:all .2s;position:relative}
+.s-conf .status-bubble{background:var(--ok-light);border-color:var(--ok);color:var(--ok)}
+.s-nc  .status-bubble{background:var(--danger-light);border-color:var(--danger);color:var(--danger)}
+.s-na  .status-bubble{background:var(--na-light);border-color:var(--na);color:var(--na)}
+
+.item-text{flex:1}
+.item-name{font-size:13px;font-weight:500}
+.item-detail{font-size:11px;color:var(--text2);margin-top:2px}
+.item-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;flex-shrink:0}
+.tag-conf{background:var(--ok-light);color:var(--ok)}
+.tag-nc{background:var(--danger-light);color:var(--danger)}
+.tag-na{background:var(--na-light);color:var(--na)}
+.tag-pend{background:var(--surface2);color:var(--text3)}
+
+/* Hint cycling */
+.cycle-hint{display:flex;gap:6px;padding:0 14px 10px 54px;flex-wrap:wrap}
+.ch{font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid var(--border);color:var(--text3)}
+.ch.next{border-color:var(--accent2);color:var(--accent);font-weight:600}
+
+/* Painel NC */
+.nc-panel{padding:0 14px 14px 54px}
+.field-label{font-size:11px;color:var(--text2);margin-bottom:5px;margin-top:10px}
+.obs-in{width:100%;font-family:'DM Sans',sans-serif;font-size:12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;background:var(--bg);color:var(--text);outline:none;transition:border-color .15s;resize:none}
+.obs-in:focus{border-color:var(--accent2);background:#fff}
+.obs-in::placeholder{color:var(--text3)}
+.photo-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.photo-thumb{width:64px;height:64px;border-radius:8px;background:var(--surface2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;transition:border-color .15s;position:relative}
+.photo-thumb:hover{border-color:var(--accent2)}
+.add-photo{width:64px;height:64px;border-radius:8px;border:1.5px dashed var(--border);background:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--text3);font-size:10px;transition:all .15s;font-family:inherit}
+.add-photo:hover{border-color:var(--accent2);color:var(--accent)}
+.add-photo-ico{font-size:22px}
+
+/* Progress panel */
+.prog-panel{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden;position:sticky;top:80px}
+.pp-header{padding:14px 18px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600}
+.pp-body{padding:16px 18px}
+.pp-row{display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px}
+.pp-k{color:var(--text2)}.pp-v{font-weight:500}
+.sum3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+.sbox{text-align:center;border-radius:var(--radius-sm);padding:10px 4px}
+.sbox-n{font-size:22px;font-weight:700}
+.sbox-l{font-size:10px;margin-top:2px}
+.legend{display:flex;gap:10px;flex-wrap:wrap;font-size:11px;color:var(--text2);margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.leg{display:flex;align-items:center;gap:5px}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+/* RELATÓRIO */
+.rel-layout{display:grid;grid-template-columns:1fr 280px;gap:20px;align-items:start}
+@media(max-width:860px){.rel-layout{grid-template-columns:1fr}}
+.rel-doc{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+.rel-head{background:var(--accent);color:#fff;padding:22px 28px;display:flex;align-items:center;gap:14px}
+.rel-logo{width:46px;height:46px;border-radius:12px;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.rel-sec{padding:20px 28px;border-bottom:1px solid var(--border)}
+.rel-sec:last-child{border-bottom:none}
+.rel-sec-t{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px}
+.rel-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 20px}
+.rel-r{display:flex;flex-direction:column;gap:2px}
+.rk{font-size:11px;color:var(--text3)}.rv{font-size:13px;font-weight:500}
+.sum-boxes{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.sum-box{border-radius:var(--radius-sm);padding:14px;text-align:center}
+.sum-n{font-size:28px;font-weight:700}.sum-l{font-size:11px;margin-top:2px}
+.rel-comodo-block{margin-bottom:22px}
+.rel-comodo-title{font-size:13px;font-weight:700;color:var(--text2);display:flex;align-items:center;gap:8px;padding-bottom:8px;margin-bottom:10px;border-bottom:2px solid var(--border)}
+.rel-nc-item{border:1.5px solid var(--danger);border-radius:var(--radius-sm);margin-bottom:14px;overflow:hidden}
+.rel-nc-head{background:var(--danger-light);padding:10px 14px;display:flex;align-items:center;gap:8px}
+.rel-nc-name{font-size:13px;font-weight:600;color:var(--danger);flex:1}
+.rel-nc-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:var(--danger);color:#fff}
+.rel-nc-body{padding:12px 14px}
+.rel-nc-obs{font-size:12px;color:var(--text2);font-style:italic;margin-bottom:10px}
+.rel-nc-photos{display:flex;gap:8px;flex-wrap:wrap}
+.rel-photo{width:90px;height:90px;border-radius:8px;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:34px;cursor:pointer;transition:border-color .15s}
+.rel-photo:hover{border-color:var(--danger)}
+.rel-empty{text-align:center;padding:24px;font-size:13px;color:var(--ok);background:var(--ok-light);border-radius:var(--radius-sm)}
+.sig-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.sig-lbl{font-size:11px;color:var(--text2);margin-bottom:6px}
+.sig-area{height:80px;border:1.5px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:border-color .15s}
+.sig-area:hover{border-color:var(--accent2)}
+.sig-done{font-size:20px;color:var(--accent2);font-family:'DM Mono',monospace;transform:rotate(-3deg);display:inline-block}
+
+/* SEND PANEL */
+.send-panel{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+.sp-head{padding:14px 18px;border-bottom:1px solid var(--border);font-size:13px;font-weight:600}
+.si{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;width:100%;background:none;border-left:none;border-right:none;border-top:none;font-family:'DM Sans',sans-serif;text-align:left}
+.si:last-child{border-bottom:none}
+.si:hover{background:var(--surface2)}
+.si-ico{font-size:20px;width:30px;text-align:center;flex-shrink:0}
+.si-n{font-size:13px;font-weight:600;color:var(--text)}
+.si-d{font-size:11px;color:var(--text2)}
+.si-arr{color:var(--text3);margin-left:auto}
+
+/* CONFIGS */
+.cfg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.cfg-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);overflow:hidden}
+.cfg-head{padding:14px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:600}
+.cfg-body{padding:16px 20px}
+.fl{font-size:11px;color:var(--text2);margin-bottom:5px;margin-top:12px}
+.fl:first-child{margin-top:0}
+.fi{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;background:var(--bg);color:var(--text);outline:none;transition:border-color .15s}
+.fi:focus{border-color:var(--accent2);background:#fff}
+.fsel{width:100%;font-family:'DM Sans',sans-serif;font-size:13px;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:9px 12px;background:var(--bg);color:var(--text);outline:none;cursor:pointer}
+
+/* MODAL */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9000;display:none;align-items:center;justify-content:center}
+.modal-ov.open{display:flex}
+.modal-box{background:var(--surface);border-radius:var(--radius);padding:28px;max-width:460px;width:92%;box-shadow:0 20px 60px rgba(0,0,0,.4);position:relative}
+.modal-close{position:absolute;top:14px;right:14px;background:var(--surface2);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--text2)}
+.modal-title{font-size:16px;font-weight:600;margin-bottom:16px}
+.modal-form .fl{margin-top:12px}
+.modal-actions{display:flex;gap:8px;margin-top:20px;justify-content:flex-end}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--text);color:#fff;border-radius:var(--radius-sm);padding:12px 20px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;box-shadow:0 8px 30px rgba(0,0,0,.25);z-index:9999;opacity:0;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .25s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+
+/* MOBILE */
+@media(max-width:720px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}.topbar{padding:0 16px}.content{padding:16px}
+  .mob-btn{display:flex!important}.obras-grid{grid-template-columns:1fr}.sb-ov{display:block!important}
+}
+.mob-btn{display:none;background:none;border:none;cursor:pointer;font-size:22px;color:var(--text2);padding:4px}
+.sb-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:99}
+</style>
+</head>
+<body>
+<div class="sb-ov" id="sb-ov" onclick="closeSB()"></div>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sb-logo"><div class="sb-logo-t">📐 VistoriaApp</div><div class="sb-logo-s">Entrega de obra</div></div>
+  <div class="sb-user">
+    <div class="avatar">BL</div>
+    <div><div class="av-name" id="sb-name">Beatriz Lunardi</div><div class="av-role">Engenheira Civil</div></div>
+  </div>
+  <nav class="sb-nav">
+    <button class="ni active" onclick="goTo('p-home',this)"><span class="ico">🏠</span>Início</button>
+    <button class="ni" onclick="goTo('p-vistoria',this)"><span class="ico">📋</span>Checklist</button>
+    <button class="ni" onclick="gerarRel();goTo('p-relatorio',this)"><span class="ico">📄</span>Relatório</button>
+    <button class="ni" onclick="goTo('p-config',this)"><span class="ico">⚙️</span>Configurações</button>
+  </nav>
+  <div class="sb-foot">VistoriaApp v1.0 · protótipo</div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="mob-btn" onclick="toggleSB()">☰</button>
+      <span class="topbar-title" id="tt">Início</span>
+    </div>
+    <div id="topbar-action"></div>
+  </header>
+  <div class="content">
+
+    <!-- ===== HOME ===== -->
+    <div class="page active" id="p-home">
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="h-obras">3</div><div class="stat-label">Obras ativas</div></div>
+        <div class="stat-card"><div class="stat-num" id="h-vis">12</div><div class="stat-label">Vistorias este mês</div></div>
+        <div class="stat-card"><div class="stat-num" id="h-pct">0%</div><div class="stat-label">Vistoria atual</div></div>
+        <div class="stat-card"><div class="stat-num" id="h-ncs">0</div><div class="stat-label">Não conformidades</div></div>
+      </div>
+      <div class="sec-label">Obras</div>
+      <div class="obras-grid" id="obras-grid"></div>
+    </div>
+
+    <!-- ===== CHECKLIST ===== -->
+    <div class="page" id="p-vistoria">
+      <div class="cl-layout">
+        <div id="cl-main"></div>
+        <div class="prog-panel">
+          <div class="pp-header">📊 Progresso</div>
+          <div class="pp-body">
+            <div class="pp-row"><span class="pp-k">Obra</span><span class="pp-v" id="pp-obra">—</span></div>
+            <div class="pp-row"><span class="pp-k">Vistoriadora</span><span class="pp-v" id="pp-nome">Engª Beatriz Lunardi</span></div>
+            <div class="pp-row"><span class="pp-k">Data</span><span class="pp-v" id="pp-data">—</span></div>
+            <div style="margin:10px 0 6px">
+              <div class="pbar-out" style="height:7px"><div class="pbar-in" id="pp-bar" style="width:0%"></div></div>
+              <div style="display:flex;justify-content:space-between;margin-top:5px;font-size:11px;color:var(--text3)">
+                <span id="pp-done">0 de 0 itens</span><span id="pp-pct">0%</span>
+              </div>
+            </div>
+            <div class="sum3">
+              <div class="sbox" style="background:var(--ok-light)"><div class="sbox-n" id="c-conf" style="color:var(--ok)">0</div><div class="sbox-l" style="color:var(--ok)">Conf.</div></div>
+              <div class="sbox" style="background:var(--danger-light)"><div class="sbox-n" id="c-nc" style="color:var(--danger)">0</div><div class="sbox-l" style="color:var(--danger)">N/Conf.</div></div>
+              <div class="sbox" style="background:var(--na-light)"><div class="sbox-n" id="c-na" style="color:var(--na)">0</div><div class="sbox-l" style="color:var(--na)">N/A</div></div>
+            </div>
+            <div class="legend">
+              <div class="leg"><div class="leg-dot" style="background:var(--border)"></div>1× clique = Conforme</div>
+              <div class="leg"><div class="leg-dot" style="background:var(--danger)"></div>2× = Não conforme</div>
+              <div class="leg"><div class="leg-dot" style="background:var(--na)"></div>3× = N/A</div>
+              <div class="leg"><div class="leg-dot" style="background:var(--text3)"></div>4× = Limpar</div>
+            </div>
+            <button class="btn btn-p" style="width:100%;margin-top:14px;padding:11px" onclick="gerarRel();goTo('p-relatorio',document.querySelector('.ni:nth-child(3)'))">📄 Gerar relatório</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RELATÓRIO ===== -->
+    <div class="page" id="p-relatorio">
+      <div class="rel-layout">
+        <div class="rel-doc">
+          <div class="rel-head">
+            <div class="rel-logo">📐</div>
+            <div>
+              <div style="font-size:17px;font-weight:700">Relatório de Vistoria de Entrega</div>
+              <div style="font-size:12px;opacity:.65;margin-top:2px" id="rel-sub">VistoriaApp</div>
+            </div>
+          </div>
+          <div class="rel-sec">
+            <div class="rel-sec-t">Identificação</div>
+            <div class="rel-grid2">
+              <div class="rel-r"><span class="rk">Obra</span><span class="rv" id="rel-obra">—</span></div>
+              <div class="rel-r"><span class="rk">Construtora</span><span class="rv" id="rel-const">—</span></div>
+              <div class="rel-r"><span class="rk">Cliente</span><span class="rv" id="rel-cliente">—</span></div>
+              <div class="rel-r"><span class="rk">Vistoriadora</span><span class="rv" id="rel-nome">Engª Beatriz Lunardi — CREA/SC</span></div>
+              <div class="rel-r"><span class="rk">Data</span><span class="rv" id="rel-data">—</span></div>
+              <div class="rel-r"><span class="rk">Endereço</span><span class="rv" id="rel-end">—</span></div>
+            </div>
+          </div>
+          <div class="rel-sec">
+            <div class="rel-sec-t">Resumo executivo</div>
+            <div class="sum-boxes">
+              <div class="sum-box" style="background:var(--ok-light)"><div class="sum-n" id="r-conf" style="color:var(--ok)">0</div><div class="sum-l" style="color:var(--ok)">Conformes</div></div>
+              <div class="sum-box" style="background:var(--danger-light)"><div class="sum-n" id="r-nc" style="color:var(--danger)">0</div><div class="sum-l" style="color:var(--danger)">Não conformes</div></div>
+              <div class="sum-box" style="background:var(--na-light)"><div class="sum-n" id="r-na" style="color:var(--na)">0</div><div class="sum-l" style="color:var(--na)">N/Aplicável</div></div>
+            </div>
+          </div>
+          <div class="rel-sec">
+            <div class="rel-sec-t">Não conformidades por local</div>
+            <div id="rel-nc-body"><div class="rel-empty">✅ Nenhuma não conformidade registrada.</div></div>
+          </div>
+          <div class="rel-sec">
+            <div class="rel-sec-t">Assinaturas</div>
+            <div class="sig-grid">
+              <div>
+                <div class="sig-lbl" id="sig-const-lbl">Construtora</div>
+                <div class="sig-area"><span class="sig-done">J. Matos</span></div>
+                <div style="font-size:10px;color:var(--text3);margin-top:5px;text-align:center" id="rel-data2">—</div>
+              </div>
+              <div>
+                <div class="sig-lbl" id="sig-cli-lbl">Cliente</div>
+                <div class="sig-area" onclick="showToast('✍️ Assinatura digital — em breve!')">
+                  <span style="font-size:12px;color:var(--text3)">+ Adicionar assinatura</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div class="send-panel">
+            <div class="sp-head">📤 Enviar relatório</div>
+            <button class="si" onclick="showToast('📧 Abrindo e-mail...')"><span class="si-ico">📧</span><div><div class="si-n">E-mail — construtora</div><div class="si-d" id="si-email">—</div></div><span class="si-arr">›</span></button>
+            <button class="si" onclick="showToast('💬 Abrindo WhatsApp...')"><span class="si-ico">💬</span><div><div class="si-n">WhatsApp — cliente</div><div class="si-d" id="si-wpp">—</div></div><span class="si-arr">›</span></button>
+            <button class="si" onclick="showToast('📎 Link copiado!')"><span class="si-ico">🔗</span><div><div class="si-n">Copiar link público</div><div class="si-d">Acesso com senha</div></div><span class="si-arr">›</span></button>
+            <button class="si" onclick="showToast('⬇️ PDF sendo gerado...')"><span class="si-ico">📄</span><div><div class="si-n">Baixar PDF</div><div class="si-d">Relatório completo</div></div><span class="si-arr">›</span></button>
+          </div>
+          <div class="send-panel">
+            <div class="sp-head">📝 Observações gerais</div>
+            <div style="padding:14px 18px"><textarea class="obs-in" rows="5" placeholder="Observações finais, pendências ou orientações..."></textarea></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CONFIG ===== -->
+    <div class="page" id="p-config">
+      <div class="cfg-grid">
+        <div class="cfg-card">
+          <div class="cfg-head">👤 Seus dados</div>
+          <div class="cfg-body">
+            <div class="fl">Nome completo</div>
+            <input class="fi" id="cfg-nome" value="Beatriz Lunardi" oninput="updNome(this.value)">
+            <div class="fl">CREA / CAU</div>
+            <input class="fi" id="cfg-crea" value="CREA/SC 123456-7">
+            <div class="fl">E-mail</div>
+            <input class="fi" type="email" value="beatriz@email.com.br">
+            <div class="fl">Telefone</div>
+            <input class="fi" type="tel" value="(48) 99999-0000">
+          </div>
+        </div>
+        <div class="cfg-card">
+          <div class="cfg-head">🏢 Escritório</div>
+          <div class="cfg-body">
+            <div class="fl">Nome</div><input class="fi" value="BL Engenharia Civil">
+            <div class="fl">CNPJ</div><input class="fi" value="00.000.000/0001-00">
+            <div class="fl">Cidade</div><input class="fi" value="Florianópolis, SC">
+            <div class="fl">Logotipo</div>
+            <button class="btn" style="width:100%;justify-content:center" onclick="showToast('📎 Upload em breve!')">+ Carregar logotipo</button>
+          </div>
+        </div>
+        <div class="cfg-card">
+          <div class="cfg-head">📄 Relatório</div>
+          <div class="cfg-body">
+            <div class="fl">Formato</div>
+            <select class="fsel"><option>PDF (recomendado)</option><option>Word (.docx)</option><option>PDF + Word</option></select>
+            <div class="fl">Cabeçalho</div><input class="fi" value="Relatório de Vistoria de Entrega">
+            <div class="fl">Rodapé</div><input class="fi" value="BL Engenharia Civil — CREA/SC 123456-7">
+          </div>
+        </div>
+        <div class="cfg-card">
+          <div class="cfg-head">📋 Checklists</div>
+          <div class="cfg-body">
+            <div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:14px">Envie sua lista de verificações e configuro os cômodos e itens reais aqui.</div>
+            <button class="btn" style="width:100%;justify-content:center;margin-bottom:8px" onclick="showToast('Em breve!')">+ Novo modelo</button>
+            <button class="btn" style="width:100%;justify-content:center" onclick="showToast('Em breve!')">📥 Importar planilha</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:10px">
+        <button class="btn btn-p" onclick="showToast('✅ Configurações salvas!')">Salvar configurações</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- MODAL OBRA (add/edit) -->
+<div class="modal-ov" id="modal-obra" onclick="if(event.target===this)closeObra()">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeObra()">✕</button>
+    <div class="modal-title" id="mo-title">Nova obra</div>
+    <div class="modal-form">
+      <input type="hidden" id="mo-id">
+      <div class="fl">Nome da obra / unidade</div>
+      <input class="fi" id="mo-nome" placeholder="Ex: Edifício Central — Apto 301">
+      <div class="fl">Construtora</div>
+      <input class="fi" id="mo-const" placeholder="Ex: Construtora Horizonte">
+      <div class="fl">Cliente</div>
+      <input class="fi" id="mo-cli" placeholder="Ex: João da Silva">
+      <div class="fl">Endereço</div>
+      <input class="fi" id="mo-end" placeholder="Ex: Rua das Flores, 100 — Florianópolis">
+      <div class="fl">E-mail da construtora</div>
+      <input class="fi" id="mo-email" type="email" placeholder="contato@construtora.com.br">
+      <div class="fl">WhatsApp do cliente</div>
+      <input class="fi" id="mo-wpp" placeholder="(48) 99999-0000">
+      <div class="fl">Data da vistoria</div>
+      <input class="fi" id="mo-data" type="date">
+      <div class="fl">Ícone</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px" id="ico-picker">
+        <span>🏢</span><span>🏠</span><span>🏗️</span><span>🏛️</span><span>🏬</span><span>🏭</span><span>🏡</span>
+      </div>
+      <input type="hidden" id="mo-ico" value="🏢">
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeObra()">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarObra()">Salvar obra</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FOTO -->
+<div class="modal-ov" id="modal-foto" onclick="if(event.target===this)closeFoto()">
+  <div class="modal-box" style="text-align:center">
+    <button class="modal-close" onclick="closeFoto()">✕</button>
+    <div style="font-size:80px;margin:8px 0" id="mf-emoji">🖼️</div>
+    <div style="font-size:13px;color:var(--text2)" id="mf-label">Foto</div>
+    <div style="font-size:11px;color:var(--text3);margin-top:4px">JPEG · adicionada na vistoria</div>
+    <div style="display:flex;gap:8px;margin-top:20px;justify-content:center">
+      <button class="btn" onclick="showToast('✏️ Anotações em breve!');closeFoto()">✏️ Anotar</button>
+      <button class="btn btn-danger" onclick="showToast('🗑️ Foto removida');closeFoto()">🗑️ Remover</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="toast-msg">✅</span></div>
+
+<script>
+// ============================================================
+// DADOS
+// ============================================================
+const EMOJIS_FOTO = ['📸','🖼️','🔍','📷','🔎'];
+const COMODOS = [
+  { id:'sala',   ico:'🛋️', nome:'Sala de Estar / Jantar',
+    itens:[
+      {id:'sala-1', nome:'Pintura — paredes e teto',      det:'Uniformidade, manchas, bolhas'},
+      {id:'sala-2', nome:'Piso cerâmico / porcelanato',   det:'Nivelamento, rejunte, trincas'},
+      {id:'sala-3', nome:'Rodapés e frisos',              det:'Fixação, alinhamento, fissuras'},
+      {id:'sala-4', nome:'Janelas e esquadrias',          det:'Vedação, movimento, fechaduras'},
+    ]},
+  { id:'banho1', ico:'🚿', nome:'Banheiro Social',
+    itens:[
+      {id:'b1-1', nome:'Revestimento cerâmico — paredes', det:'Alinhamento, rejunte, fixação'},
+      {id:'b1-2', nome:'Piso — nivelamento e rejunte',    det:'Assentamento e ausência de fissuras'},
+      {id:'b1-3', nome:'Louças e metais',                 det:'Torneiras, registros, acabamento'},
+      {id:'b1-4', nome:'Impermeabilização',               det:'Vedação, ausência de infiltrações'},
+    ]},
+  { id:'qto1',  ico:'🛏️', nome:'Quarto 1',
+    itens:[
+      {id:'q1-1', nome:'Pintura — paredes e teto',   det:'Uniformidade e cobertura'},
+      {id:'q1-2', nome:'Piso laminado',               det:'Assentamento, juntas, dilatação'},
+      {id:'q1-3', nome:'Porta — folha e fechadura',  det:'Abertura, vedação, dobradiças'},
+      {id:'q1-4', nome:'Rodapés — fixação',          det:'Alinhamento e fissuras'},
+    ]},
+  { id:'coz',   ico:'🍳', nome:'Cozinha',
+    itens:[
+      {id:'c-1', nome:'Revestimento cerâmico — parede', det:'Alinhamento e rejunte'},
+      {id:'c-2', nome:'Piso — nivelamento',             det:'Estado e assentamento'},
+      {id:'c-3', nome:'Bancada e cuba',                 det:'Acabamento e fixação'},
+      {id:'c-4', nome:'Instalação elétrica',            det:'Tomadas, interruptores, funcionamento'},
+    ]},
+];
+
+// estado dos itens: id -> { status: ''|'conf'|'nc'|'na', obs:'', fotos:[] }
+const estado = {};
+COMODOS.forEach(c => c.itens.forEach(it => {
+  estado[it.id] = { status:'', obs:'', fotos:[] };
+}));
+
+// obras
+let obras = [
+  { id:1, ico:'🏢', nome:'Edifício Jardins — Apto 402', const:'Construtora Horizonte', cli:'José da Silva', end:'Av. Beira-Mar Norte, 1234 — Florianópolis', email:'contato@horizonte.com.br', wpp:'(48) 99999-1234', data:'2025-06-02', ativa:true },
+  { id:2, ico:'🏠', nome:'Residencial Solar — Casa 07', const:'Construtora Novo Lar',  cli:'Maria Oliveira', end:'Rua das Palmeiras, 7 — São José',           email:'contato@nlar.com.br',    wpp:'(48) 98888-5678', data:'2025-05-28', ativa:false },
+  { id:3, ico:'🏗️', nome:'Torres do Mar — Bloco B',     const:'Construtora Ilha',       cli:'Pedro Costa',   end:'Rua do Farol, 200 — Palhoça',                email:'contato@ilha.com.br',    wpp:'(48) 97777-9012', data:'2025-06-05', ativa:false },
+];
+let obraAtiva = obras[0];
+let nextObraId = 4;
+let icoSelecionado = '🏢';
+
+// ============================================================
+// RENDER OBRAS
+// ============================================================
+function renderObras() {
+  const grid = document.getElementById('obras-grid');
+  grid.innerHTML = '';
+  obras.forEach(o => {
+    const conf = Object.values(estado).filter(e=>e.status==='conf').length;
+    const nc   = Object.values(estado).filter(e=>e.status==='nc').length;
+    const total= COMODOS.reduce((a,c)=>a+c.itens.length,0);
+    const done = o.ativa ? conf+nc : (o.id===2 ? total : 0);
+    const pct  = Math.round(done/total*100);
+    const statusBadge = o.ativa
+      ? `<span class="badge b-warn">Em vistoria</span><span class="badge b-pend">${pct}% concluído</span>`
+      : o.id===2 ? `<span class="badge b-ok">Concluída</span>`
+      : `<span class="badge b-pend">Agendada: ${fmtData(o.data)}</span>`;
+    const itemStr = o.ativa ? `${done} de ${total} itens` : (o.id===2 ? `${total} de ${total} itens` : `0 de ${total} itens`);
+    const pctBar  = o.ativa ? pct : (o.id===2 ? 100 : 0);
+
+    const div = document.createElement('div');
+    div.className = 'obra-card';
+    div.innerHTML = `
+      <div class="obra-header">
+        <div class="obra-icon">${o.ico}</div>
+        <div><div class="obra-name">${o.nome}</div><div class="obra-sub">${o.const} · ${o.end.split('—')[1]?.trim()||o.end}</div></div>
+      </div>
+      <div class="obra-meta">${statusBadge}</div>
+      <div class="obra-progress">
+        <div class="pbar-out"><div class="pbar-in" style="width:${pctBar}%"></div></div>
+        <div class="pbar-meta"><span>${itemStr}</span><span>${fmtData(o.data)}</span></div>
+      </div>
+      <div class="obra-actions">
+        ${o.ativa ? `<button class="btn btn-p" style="flex:1" onclick="abrirVistoria()">▶ Abrir vistoria</button>` : `<button class="btn" style="flex:1" onclick="ativarObra(${o.id})">Ativar</button>`}
+        <button class="btn" onclick="editObra(${o.id})">✏️</button>
+        <button class="btn btn-danger" onclick="delObra(${o.id})">🗑️</button>
+      </div>`;
+    grid.appendChild(div);
+  });
+
+  // botão nova obra
+  const add = document.createElement('button');
+  add.className = 'add-obra-card';
+  add.innerHTML = '<span style="font-size:32px">＋</span><span style="font-size:13px;font-weight:600">Nova obra</span>';
+  add.onclick = () => openObra();
+  grid.appendChild(add);
+
+  document.getElementById('h-obras').textContent = obras.length;
+  updHomePct();
+}
+
+function fmtData(s){ if(!s)return'—'; const[y,m,d]=s.split('-'); return `${d}/${m}/${y}`; }
+
+function abrirVistoria() {
+  obraAtiva = obras.find(o=>o.ativa)||obras[0];
+  document.getElementById('pp-obra').textContent = obraAtiva.nome.split('—')[0].trim();
+  document.getElementById('pp-data').textContent = fmtData(obraAtiva.data);
+  document.getElementById('rel-obra').textContent = obraAtiva.nome;
+  document.getElementById('rel-const').textContent = obraAtiva.const;
+  document.getElementById('rel-cliente').textContent = obraAtiva.cli;
+  document.getElementById('rel-end').textContent = obraAtiva.end;
+  document.getElementById('rel-data').textContent = fmtData(obraAtiva.data);
+  document.getElementById('rel-data2').textContent = fmtData(obraAtiva.data);
+  document.getElementById('sig-const-lbl').textContent = obraAtiva.const;
+  document.getElementById('sig-cli-lbl').textContent = 'Cliente — ' + obraAtiva.cli;
+  document.getElementById('si-email').textContent = obraAtiva.email;
+  document.getElementById('si-wpp').textContent = obraAtiva.wpp;
+  goTo('p-vistoria', document.querySelector('.ni:nth-child(2)'));
+}
+
+function ativarObra(id) {
+  obras.forEach(o=>o.ativa=false);
+  obras.find(o=>o.id===id).ativa=true;
+  renderObras();
+  showToast('✅ Obra ativada!');
+}
+function delObra(id) {
+  if(obras.length<=1){showToast('⚠️ Mantenha ao menos uma obra.');return;}
+  obras = obras.filter(o=>o.id!==id);
+  if(!obras.some(o=>o.ativa)) obras[0].ativa=true;
+  renderObras(); showToast('🗑️ Obra removida.');
+}
+
+// ============================================================
+// MODAL OBRA
+// ============================================================
+function openObra(id){
+  const o = id ? obras.find(x=>x.id===id) : null;
+  document.getElementById('mo-title').textContent = o ? 'Editar obra' : 'Nova obra';
+  document.getElementById('mo-id').value = o ? o.id : '';
+  document.getElementById('mo-nome').value = o ? o.nome : '';
+  document.getElementById('mo-const').value = o ? o.const : '';
+  document.getElementById('mo-cli').value = o ? o.cli : '';
+  document.getElementById('mo-end').value = o ? o.end : '';
+  document.getElementById('mo-email').value = o ? o.email : '';
+  document.getElementById('mo-wpp').value = o ? o.wpp : '';
+  document.getElementById('mo-data').value = o ? o.data : new Date().toISOString().slice(0,10);
+  icoSelecionado = o ? o.ico : '🏢';
+  document.getElementById('mo-ico').value = icoSelecionado;
+  document.querySelectorAll('#ico-picker span').forEach(s=>{
+    s.style.cursor='pointer'; s.style.fontSize='22px'; s.style.padding='4px';
+    s.style.borderRadius='6px';
+    s.style.border = s.textContent===icoSelecionado ? '2px solid var(--accent)' : '2px solid transparent';
+    s.onclick = ()=>{
+      icoSelecionado=s.textContent;
+      document.getElementById('mo-ico').value=icoSelecionado;
+      document.querySelectorAll('#ico-picker span').forEach(x=>x.style.border='2px solid transparent');
+      s.style.border='2px solid var(--accent)';
+    };
+  });
+  document.getElementById('modal-obra').classList.add('open');
+}
+function editObra(id){ openObra(id); }
+function closeObra(){ document.getElementById('modal-obra').classList.remove('open'); }
+function salvarObra(){
+  const id = document.getElementById('mo-id').value;
+  const dados = {
+    ico: document.getElementById('mo-ico').value||'🏢',
+    nome: document.getElementById('mo-nome').value||'Nova obra',
+    const: document.getElementById('mo-const').value||'—',
+    cli:  document.getElementById('mo-cli').value||'—',
+    end:  document.getElementById('mo-end').value||'—',
+    email:document.getElementById('mo-email').value||'—',
+    wpp:  document.getElementById('mo-wpp').value||'—',
+    data: document.getElementById('mo-data').value||'',
+    ativa:false,
+  };
+  if(id){
+    const o=obras.find(x=>x.id===parseInt(id));
+    Object.assign(o,dados);
+  } else {
+    dados.id=nextObraId++;
+    obras.push(dados);
+  }
+  closeObra(); renderObras(); showToast('✅ Obra salva!');
+}
+
+// ============================================================
+// RENDER CHECKLIST
+// ============================================================
+function renderChecklist(){
+  const main = document.getElementById('cl-main');
+  main.innerHTML='';
+  COMODOS.forEach(cm=>{
+    const div=document.createElement('div');
+    div.className='comodo-block';
+    div.innerHTML=`<div class="comodo-header">
+      <span class="comodo-icon">${cm.ico}</span>
+      <span class="comodo-title">${cm.nome}</span>
+      <span class="comodo-cnt" id="cnt-${cm.id}">0/${cm.itens.length}</span>
+    </div>`;
+    cm.itens.forEach(it=>{
+      div.appendChild(buildItem(it));
+    });
+    main.appendChild(div);
+  });
+  updProgress();
+}
+
+function buildItem(it){
+  const e = estado[it.id];
+  const wrap = document.createElement('div');
+  wrap.className = 'cl-item' + (e.status ? ' s-'+e.status : '');
+  wrap.id = 'item-'+it.id;
+
+  const tagMap = { conf:'<span class="item-tag tag-conf">✓ Conforme</span>', nc:'<span class="item-tag tag-nc">✗ Não conforme</span>', na:'<span class="item-tag tag-na">— N/A</span>', '':'<span class="item-tag tag-pend">Pendente</span>' };
+  const bubMap = { conf:'✓', nc:'✗', na:'—', '':'' };
+
+  wrap.innerHTML = `
+    <div class="cl-item-header" onclick="cycleStatus('${it.id}')">
+      <div class="status-bubble" id="bub-${it.id}">${bubMap[e.status]}</div>
+      <div class="item-text">
+        <div class="item-name">${it.nome}</div>
+        <div class="item-detail">${it.det}</div>
+      </div>
+      ${tagMap[e.status]}
+    </div>
+    <div class="cycle-hint" id="hint-${it.id}"></div>
+    <div class="nc-panel" id="ncp-${it.id}" style="display:${e.status==='nc'?'block':'none'}">
+      <div class="field-label">Descrição do problema</div>
+      <textarea class="obs-in" rows="2" placeholder="Descreva a não conformidade..." id="obs-${it.id}" oninput="estado['${it.id}'].obs=this.value">${e.obs}</textarea>
+      <div class="field-label">Fotos</div>
+      <div class="photo-row" id="pr-${it.id}">
+        ${e.fotos.map(f=>`<div class="photo-thumb" onclick="openFoto('${f}','${it.nome}')">${f}</div>`).join('')}
+        <button class="add-photo" onclick="addFoto('${it.id}',event)"><span class="add-photo-ico">📷</span><span>Foto</span></button>
+      </div>
+    </div>`;
+  renderHint(it.id, e.status);
+  return wrap;
+}
+
+function renderHint(id, st){
+  const h = document.getElementById('hint-'+id);
+  if(!h)return;
+  if(!st){ h.innerHTML=''; return; }
+  const next = { conf:'Não conforme', nc:'N/A', na:'Limpar' }[st];
+  const col   = { conf:'var(--ok)', nc:'var(--danger)', na:'var(--na)' }[st];
+  h.innerHTML = `<span class="ch" style="border-color:${col};color:${col}">Clique novamente → ${next}</span>`;
+}
+
+const cycle = { '':'conf', conf:'nc', nc:'na', na:'' };
+function cycleStatus(id){
+  const e=estado[id];
+  e.status=cycle[e.status];
+  const wrap=document.getElementById('item-'+id);
+  // rebuild header & panel
+  const it = COMODOS.flatMap(c=>c.itens).find(x=>x.id===id);
+  const novo = buildItem(it);
+  wrap.replaceWith(novo);
+  updProgress();
+  const msgs = { conf:'✓ Conforme', nc:'📷 Não conforme — adicione a descrição e fotos', na:'— Não aplicável', '':'↩ Item desmarcado' };
+  showToast(msgs[e.status]);
+}
+
+function addFoto(id, e){
+  e.stopPropagation();
+  const emoji = EMOJIS_FOTO[Math.floor(Math.random()*EMOJIS_FOTO.length)];
+  estado[id].fotos.push(emoji);
+  const row=document.getElementById('pr-'+id);
+  const btn=row.querySelector('.add-photo');
+  const div=document.createElement('div');
+  div.className='photo-thumb';
+  div.textContent=emoji;
+  const name=COMODOS.flatMap(c=>c.itens).find(x=>x.id===id)?.nome||id;
+  div.onclick=()=>openFoto(emoji,name);
+  row.insertBefore(div,btn);
+  showToast('📷 Foto adicionada!');
+}
+
+// ============================================================
+// PROGRESSO
+// ============================================================
+function updProgress(){
+  const allIds=COMODOS.flatMap(c=>c.itens.map(i=>i.id));
+  const total=allIds.length;
+  const conf=allIds.filter(id=>estado[id].status==='conf').length;
+  const nc  =allIds.filter(id=>estado[id].status==='nc').length;
+  const na  =allIds.filter(id=>estado[id].status==='na').length;
+  const done=conf+nc+na;
+  const pct=Math.round(done/total*100);
+
+  document.getElementById('c-conf').textContent=conf;
+  document.getElementById('c-nc').textContent=nc;
+  document.getElementById('c-na').textContent=na;
+  document.getElementById('pp-bar').style.width=pct+'%';
+  document.getElementById('pp-done').textContent=done+' de '+total+' itens';
+  document.getElementById('pp-pct').textContent=pct+'%';
+
+  COMODOS.forEach(cm=>{
+    const c=cm.itens.filter(i=>estado[i.id].status!=='').length;
+    const el=document.getElementById('cnt-'+cm.id);
+    if(el) el.textContent=c+'/'+cm.itens.length;
+  });
+  updHomePct();
+}
+function updHomePct(){
+  const allIds=COMODOS.flatMap(c=>c.itens.map(i=>i.id));
+  const total=allIds.length;
+  const done=allIds.filter(id=>estado[id].status!=='').length;
+  const pct=Math.round(done/total*100);
+  const nc=allIds.filter(id=>estado[id].status==='nc').length;
+  const el=document.getElementById('h-pct');
+  if(el) el.textContent=pct+'%';
+  const en=document.getElementById('h-ncs');
+  if(en) en.textContent=nc;
+}
+
+// ============================================================
+// RELATÓRIO
+// ============================================================
+function gerarRel(){
+  const allIds=COMODOS.flatMap(c=>c.itens.map(i=>i.id));
+  const conf=allIds.filter(id=>estado[id].status==='conf').length;
+  const nc  =allIds.filter(id=>estado[id].status==='nc').length;
+  const na  =allIds.filter(id=>estado[id].status==='na').length;
+  document.getElementById('r-conf').textContent=conf;
+  document.getElementById('r-nc').textContent=nc;
+  document.getElementById('r-na').textContent=na;
+  const now=new Date();
+  document.getElementById('rel-sub').textContent='VistoriaApp · '+now.toLocaleDateString('pt-BR')+' às '+now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+
+  let html='';let algum=false;
+  COMODOS.forEach(cm=>{
+    const ncItens=cm.itens.filter(i=>estado[i.id].status==='nc');
+    if(!ncItens.length)return;
+    algum=true;
+    html+=`<div class="rel-comodo-block"><div class="rel-comodo-title">${cm.ico} ${cm.nome}</div>`;
+    ncItens.forEach(it=>{
+      const e=estado[it.id];
+      const obs=e.obs.trim()||'Sem observação registrada.';
+      const photos=e.fotos.length
+        ? e.fotos.map(f=>`<div class="rel-photo" onclick="openFoto('${f}','${it.nome}')">${f}</div>`).join('')
+        : '<span style="font-size:12px;color:var(--text3)">Nenhuma foto adicionada</span>';
+      html+=`<div class="rel-nc-item">
+        <div class="rel-nc-head">
+          <span style="color:var(--danger);font-size:14px">✗</span>
+          <span class="rel-nc-name">${it.nome}</span>
+          <span class="rel-nc-badge">NÃO CONFORME</span>
+        </div>
+        <div class="rel-nc-body">
+          <div class="rel-nc-obs">📝 ${obs}</div>
+          <div class="rel-nc-photos">${photos}</div>
+        </div>
+      </div>`;
+    });
+    html+='</div>';
+  });
+  if(!algum) html='<div class="rel-empty">✅ Nenhuma não conformidade registrada.<br><span style="font-size:12px;opacity:.7">Continue preenchendo o checklist.</span></div>';
+  document.getElementById('rel-nc-body').innerHTML=html;
+}
+
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
+const PT={'p-home':'Início','p-vistoria':'Checklist','p-relatorio':'Relatório de Vistoria','p-config':'Configurações'};
+function goTo(id,ni){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('tt').textContent=PT[id]||'';
+  const act=document.getElementById('topbar-action');
+  act.innerHTML='';
+  if(id==='p-home'){
+    act.innerHTML='<button class="btn btn-p" onclick="openObra()">+ Nova obra</button>';
+  } else if(id==='p-vistoria'){
+    act.innerHTML=`<button class="btn btn-p" onclick="gerarRel();goTo('p-relatorio',document.querySelector('.ni:nth-child(3)'))">📄 Relatório</button>`;
+  }
+  if(ni){document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));ni.classList.add('active');}
+  closeSB();
+}
+function toggleSB(){ document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sb-ov').style.display=document.getElementById('sidebar').classList.contains('open')?'block':'none'; }
+function closeSB(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('sb-ov').style.display='none'; }
+
+// ============================================================
+// MODAIS
+// ============================================================
+function openFoto(emoji,label){ document.getElementById('mf-emoji').textContent=emoji; document.getElementById('mf-label').textContent=label; document.getElementById('modal-foto').classList.add('open'); }
+function closeFoto(){ document.getElementById('modal-foto').classList.remove('open'); }
+
+let toastT;
+function showToast(m){ const t=document.getElementById('toast'); document.getElementById('toast-msg').textContent=m; t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2800); }
+
+function updNome(v){
+  const n=v||'Beatriz Lunardi';
+  document.getElementById('sb-name').textContent=n;
+  document.getElementById('pp-nome').textContent='Engª '+n;
+  document.getElementById('rel-nome').textContent='Engª '+n+' — '+document.getElementById('cfg-crea').value;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+renderObras();
+renderChecklist();
+// preencher alguns itens para demo
+['sala-1','sala-2','q1-1','q1-2','q1-3','b1-1','b1-2','c-1','c-2','c-3'].forEach(id=>{ estado[id].status='conf'; });
+['sala-4','b1-4','q1-4'].forEach(id=>{ estado[id].status='nc'; });
+estado['sala-4'].obs='Vedação da janela com folga visível.';
+estado['q1-4'].obs='Fissura no rodapé junto à janela.';
+estado['q1-4'].fotos=['⚠️'];
+estado['b1-4'].obs='Rejunte irregular no canto inferior.';
+estado['b1-4'].fotos=['🚿'];
+renderChecklist();
+updHomePct();
+</script>
+</body>
+</html>
